@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>พอร์ตลงทุน &amp; วางแผนรถ</title>
+  <meta name="description" content="Annual Compound End-of-Period — Flat Rate VAT 7%">
+  <style>
+    :root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#222636;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#e8eaf0;--text2:#8b90a7;--text3:#555a72;--blue:#4f8ef7;--blue-dim:rgba(79,142,247,0.12);--green:#34d399;--red:#f87171;--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.1);--radius:12px;--radius-sm:8px;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;color:var(--text);font-size:14px;line-height:1.6;}
+    .root{max-width:760px;margin:0 auto;padding:32px 20px 64px;}
+    h2{font-size:22px;font-weight:700;letter-spacing:-0.4px;margin-bottom:4px;}
+    .subtitle{font-size:13px;color:var(--text2);margin-bottom:28px;}
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+    .card-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+    .sec{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:16px 0 10px;}
+    .sec:first-child{margin-top:0;}
+    .field{margin-bottom:12px;}
+    .field-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+    .field-label{font-size:13px;color:var(--text2);}
+    .field-right{display:flex;align-items:center;gap:6px;}
+    .num-input{width:96px;padding:5px 10px;font-size:13px;font-weight:600;font-family:inherit;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg3);color:var(--text);text-align:right;transition:border-color .15s;}
+    .num-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,142,247,0.15);}
+    .unit{font-size:12px;color:var(--text3);min-width:26px;}
+    .field input[type=range]{width:100%;display:block;height:4px;cursor:pointer;-webkit-appearance:none;appearance:none;background:var(--bg3);border-radius:2px;outline:none;margin-top:2px;}
+    .field input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--blue);border:2px solid var(--bg2);cursor:pointer;box-shadow:0 0 0 3px rgba(79,142,247,0.2);}
+    .field input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--blue);border:2px solid var(--bg2);cursor:pointer;}
+    .two-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .avail-strip{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;flex-wrap:wrap;}
+    .avail-eq{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .avail-eq .val{font-weight:700;color:var(--text);}
+    .avail-eq .op{color:var(--text3);}
+    .avail-eq .result{font-size:15px;font-weight:800;color:var(--green);}
+    .avail-eq .neg{color:var(--red);}
+    .avail-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-right:4px;}
+    .big-metric{background:linear-gradient(135deg,#1a2744 0%,#1a2535 100%);border:1px solid rgba(79,142,247,0.2);border-radius:var(--radius);padding:20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+    .big-metric-label{font-size:12px;color:#7a9fd4;font-weight:500;margin-bottom:4px;}
+    .big-metric-value{font-size:28px;font-weight:800;color:var(--green);letter-spacing:-0.5px;}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px;}
+    .metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+    .metric-label{font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+    .metric-value{font-size:17px;font-weight:700;letter-spacing:-0.3px;}
+    .metric-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+    .phase-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding:8px 0 4px;}
+    .flow-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+    .flow-row:last-child{border-bottom:none;}
+    .flow-row.total{font-weight:700;font-size:14px;background:var(--bg3);margin:6px -20px -20px;padding:12px 20px;border-radius:0 0 var(--radius) var(--radius);border-top:1px solid var(--border2);}
+    .fl{color:var(--text2);}
+    .chart-wrap{position:relative;width:100%;height:260px;}
+    .chart-sm{position:relative;width:100%;height:200px;}
+    .legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
+    .legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);}
+    .ldot{width:8px;height:8px;border-radius:50%;}
+    .insight{border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;margin-top:14px;line-height:1.5;}
+    .insight.blue{background:var(--blue-dim);color:#7ab3f7;border:1px solid rgba(79,142,247,0.2);}
+    .insight.warn{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,0.2);}
+    .tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:4px;vertical-align:middle;}
+    .tag-amber{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.2);}
+    .tag-blue{background:rgba(79,142,247,0.12);color:var(--blue);border:1px solid rgba(79,142,247,0.2);}
+    .tag-green{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.25);}
+    .car-strip{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--text2);}
+    .car-strip b{color:var(--text);font-weight:600;}
+    .formula-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:14px;}
+    .formula-box code{color:var(--blue);font-family:monospace;font-size:12px;}
+    .tbl-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:12px;}
+    thead th{font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);text-align:right;padding:8px 10px;border-bottom:1px solid var(--border2);white-space:nowrap;background:var(--bg2);}
+    thead th:first-child{text-align:left;}
+    tbody td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums;}
+    tbody td:first-child{text-align:left;font-weight:600;}
+    tbody tr:hover td{background:var(--bg3);}
+    tbody tr:last-child td{border-bottom:none;font-weight:700;background:rgba(79,142,247,0.06);color:var(--blue);}
+    tbody tr.freed td:first-child::after{content:' checkmark';color:var(--green);font-size:10px;}
+    .td-pos{color:var(--green);}.td-neg{color:var(--red);}
+    .td-loan{color:var(--red);font-size:11px;}.td-free{color:var(--green);font-size:11px;}
+    .badge{display:inline-block;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--blue-dim);color:var(--blue);}
+    @media(max-width:600px){.metrics{grid-template-columns:repeat(2,1fr);}.two-col{grid-template-columns:1fr;}.big-metric{flex-direction:column;align-items:flex-start;gap:4px;}.two-fields{grid-template-columns:1fr;}.avail-strip{flex-direction:column;align-items:flex-start;}}
+  </style>
+</head>
+<body>
+<div class="root">
+  <h2>พอร์ตลงทุน &amp; วางแผนรถ</h2>
+  <p class="subtitle">วิเคราะห์ผลตอบแทนตามเงินดาวน์และระยะเวลาลงทุน</p>
+
+  <div class="formula-box">
+    <strong style="color:var(--text)">วิธีคำนวณ — Annual Compound (End of Period)</strong><br>
+    <code>พอร์ตสิ้นปี = (ต้นงวด &times; (1 + r)) + เงินเติมทั้งปี</code><br>
+    <span style="color:var(--text3);font-size:11px;">ต้นงวดได้รับ return เต็มปี &nbsp;&bull;&nbsp; เงินเติมรายเดือนรวมเข้าปลายปี (ยังไม่ได้ return ในปีนั้น) &nbsp;&bull;&nbsp; ดอกเบี้ยรถ: Flat Rate &nbsp;&bull;&nbsp; VAT 7% รวมในค่างวด</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ตัวแปร</div>
+    <div class="sec">รายรับ / รายจ่าย</div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">เงินเดือน</span><div class="field-right"><input type="number" id="salaryInput" class="num-input" value="60000" min="0" step="1000" oninput="sync('salary','i')"><span class="unit">บาท</span></div></div>
+      <input type="range" id="salarySlider" min="30000" max="200000" step="1000" value="60000" oninput="sync('salary','s')">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">ค่าครองชีพ / เดือน</span><div class="field-right"><input type="number" id="livingInput" class="num-input" value="12500" min="0" step="500" oninput="sync('living','i')"><span class="unit">บาท</span></div></div>
+      <input type="range" id="livingSlider" min="5000" max="50000" step="500" value="12500" oninput="sync('living','s')">
+    </div>
+    <div class="sec">เงินต้นเริ่มต้น (จากการขายรถเก่า)</div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">ราคาขายรถเก่า</span><div class="field-right"><input type="number" id="oldCarInput" class="num-input" value="1050000" min="0" step="50000" oninput="sync('oldCar','i')"><span class="unit">บาท</span></div></div>
+      <input type="range" id="oldCarSlider" min="0" max="5000000" step="50000" value="1050000" oninput="sync('oldCar','s')">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">หนี้เดิมที่ต้องปิด</span><div class="field-right"><input type="number" id="debtInput" class="num-input" value="200000" min="0" step="10000" oninput="sync('debt','i')"><span class="unit">บาท</span></div></div>
+      <input type="range" id="debtSlider" min="0" max="2000000" step="10000" value="200000" oninput="sync('debt','s')">
+    </div>
+    <div class="avail-strip">
+      <span class="avail-label">เงินคงเหลือ</span>
+      <div class="avail-eq">
+        <span id="eq-oldcar" class="val">-</span><span class="op">-</span>
+        <span id="eq-debt" class="neg">-</span><span class="op">=</span>
+        <span id="eq-avail" class="result">-</span>
+      </div>
+    </div>
+    <div class="sec">รถคันใหม่</div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">ราคารถใหม่</span><div class="field-right"><input type="number" id="carPriceInput" class="num-input" value="1000000" min="100000" step="50000" oninput="sync('carPrice','i')"><span class="unit">บาท</span></div></div>
+      <input type="range" id="carPriceSlider" min="300000" max="5000000" step="50000" value="1000000" oninput="sync('carPrice','s')">
+    </div>
+    <div class="field">
+      <div class="field-top">
+        <span class="field-label">เงินดาวน์ <span id="down-pct" style="font-size:11px;color:var(--blue);margin-left:4px;"></span></span>
+        <div class="field-right"><input type="number" id="downInput" class="num-input" value="200000" min="0" step="5000" oninput="sync('down','i')"><span class="unit">บาท</span></div>
+      </div>
+      <input type="range" id="downSlider" min="0" max="850000" step="5000" value="200000" oninput="sync('down','s')">
+    </div>
+    <div id="car-strip" class="car-strip"></div>
+    <div class="two-fields" style="margin-top:12px;">
+      <div class="field">
+        <div class="field-top"><span class="field-label">ดอกเบี้ยรถ / ปี <span class="tag tag-blue">Flat Rate</span></span><div class="field-right"><input type="number" id="carRateInput" class="num-input" value="4" min="0" max="20" step="0.1" oninput="sync('carRate','i')"><span class="unit">%</span></div></div>
+        <input type="range" id="carRateSlider" min="0" max="15" step="0.1" value="4" oninput="sync('carRate','s')">
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">ระยะผ่อนรถ</span><div class="field-right"><input type="number" id="carTermInput" class="num-input" value="60" min="12" max="96" step="12" oninput="sync('carTerm','i')"><span class="unit">เดือน</span></div></div>
+        <input type="range" id="carTermSlider" min="12" max="96" step="12" value="60" oninput="sync('carTerm','s')">
+      </div>
+    </div>
+    <div class="sec">การลงทุน</div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">ผลตอบแทน / ปี <span class="tag tag-green">Annual Compound</span></span><div class="field-right"><input type="number" id="returnInput" class="num-input" value="24" min="0.1" max="100" step="0.5" oninput="sync('return','i')"><span class="unit">%</span></div></div>
+      <input type="range" id="returnSlider" min="1" max="50" step="0.5" value="24" oninput="sync('return','s')">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">ระยะเวลาลงทุน</span><div class="field-right"><input type="number" id="horizonInput" class="num-input" value="8" min="1" max="50" step="1" oninput="sync('horizon','i')"><span class="unit">ปี</span></div></div>
+      <input type="range" id="horizonSlider" min="1" max="20" step="1" value="8" oninput="sync('horizon','s')">
+    </div>
+  </div>
+
+  <div class="big-metric">
+    <div>
+      <div class="big-metric-label">มูลค่าพอร์ตเมื่อครบระยะเวลา</div>
+      <div class="big-metric-value" id="m-total">-</div>
+    </div>
+    <div class="badge" id="m-badge">8 ปี</div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">เงินต้นเริ่มต้น</div><div class="metric-value" style="color:var(--blue)" id="m-initial">-</div><div class="metric-sub" id="m-initial-sub">-</div></div>
+    <div class="metric"><div class="metric-label">ค่างวดรถ / เดือน <span class="tag tag-amber">รวม VAT</span></div><div class="metric-value" id="m-car">-</div><div class="metric-sub" id="m-car-sub">-</div></div>
+    <div class="metric"><div class="metric-label">ลงทุน / เดือน (ระหว่างผ่อน)</div><div class="metric-value" id="m-monthly1">-</div></div>
+    <div class="metric"><div class="metric-label">ลงทุน / เดือน (หลังผ่อนหมด)</div><div class="metric-value" style="color:var(--green)" id="m-monthly2">-</div><div class="metric-sub" id="m-boost" style="color:var(--green)"></div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">กระแสเงินสดเริ่มต้น (ครั้งเดียว)</div>
+      <div class="flow-row"><span class="fl">ขายรถเก่า</span><span id="fs-oldcar" style="color:var(--green)">-</span></div>
+      <div class="flow-row"><span class="fl">ปิดหนี้เดิม</span><span style="color:var(--red)" id="fs-debt">-</span></div>
+      <div class="flow-row"><span class="fl">ดาวน์รถใหม่</span><span style="color:var(--red)" id="fs-down">-</span></div>
+      <div class="flow-row total"><span>เงินต้นลงทุน</span><span style="color:var(--blue)" id="fs-init">-</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">กระแสเงินสด / เดือน — ระหว่างผ่อน</div>
+      <div class="flow-row"><span class="fl">เงินเดือน</span><span id="f-salary">-</span></div>
+      <div class="flow-row"><span class="fl">ผ่อนคอนโด</span><span style="color:var(--red)">-23,400</span></div>
+      <div class="flow-row"><span class="fl">ค่าครองชีพ</span><span style="color:var(--red)" id="f-living">-</span></div>
+      <div class="flow-row"><span class="fl">ค่างวดรถ (รวม VAT)</span><span style="color:var(--red)" id="f-car">-</span></div>
+      <div class="flow-row total"><span>ลงทุนได้</span><span id="f-invest1">-</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">กระแสเงินสด / เดือน — หลังผ่อนรถหมด</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div class="flow-row"><span class="fl">เงินเดือน</span><span id="f-salary2">-</span></div>
+        <div class="flow-row"><span class="fl">ผ่อนคอนโด</span><span style="color:var(--red)">-23,400</span></div>
+        <div class="flow-row"><span class="fl">ค่าครองชีพ</span><span style="color:var(--red)" id="f-living2">-</span></div>
+      </div>
+      <div>
+        <div class="flow-row"><span class="fl" style="color:var(--green)">ค่างวด (ว่าง)</span><span style="color:var(--green)" id="f-car-freed">-</span></div>
+        <div class="flow-row" style="border-bottom:none;font-weight:700;"><span>ลงทุนได้</span><span style="color:var(--green)" id="f-invest2">-</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">มูลค่าพอร์ตตามปี</div>
+    <div class="legend">
+      <span><span class="ldot" style="background:var(--blue)"></span>ดาวน์ที่เลือก</span>
+      <span><span class="ldot" style="background:var(--green)"></span>ดาวน์ 0 บาท (ดีสุด)</span>
+    </div>
+    <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
+    <div id="insight" class="insight blue"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">เปรียบเทียบพอร์ตตามระดับเงินดาวน์</div>
+    <div class="chart-sm"><canvas id="compChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ตารางผลตอบแทนรายปี</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ปี</th><th>ช่วง</th><th>ลงทุน/เดือน</th><th>ทุนสะสม</th><th>ผลตอบแทนปีนี้</th><th>มูลค่าพอร์ต</th><th>+YoY</th></tr></thead>
+        <tbody id="yearBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const CONDO=23400,VAT=1.07;
+const G=id=>document.getElementById(id);
+const FC={
+  salary:{s:'salarySlider',i:'salaryInput',smax:200000},
+  living:{s:'livingSlider',i:'livingInput',smax:50000},
+  oldCar:{s:'oldCarSlider',i:'oldCarInput',smax:5000000},
+  debt:{s:'debtSlider',i:'debtInput',smax:2000000},
+  carPrice:{s:'carPriceSlider',i:'carPriceInput',smax:5000000},
+  down:{s:'downSlider',i:'downInput',smax:5000000},
+  carRate:{s:'carRateSlider',i:'carRateInput',smax:15},
+  carTerm:{s:'carTermSlider',i:'carTermInput',smax:96},
+  return:{s:'returnSlider',i:'returnInput',smax:50},
+  horizon:{s:'horizonSlider',i:'horizonInput',smax:20},
+};
+function sync(key,src){
+  const f=FC[key],sl=G(f.s),inp=G(f.i);
+  if(src==='s') inp.value=parseFloat(sl.value);
+  else{let v=parseFloat(inp.value);if(isNaN(v))return;sl.value=Math.min(v,f.smax);}
+  if(['oldCar','debt','carPrice','down'].includes(key)){
+    const avail=Math.max(0,gv('oldCar')-gv('debt'));
+    const maxD=Math.min(avail,gv('carPrice'));
+    G('downSlider').max=Math.max(0,maxD);
+    if(gv('down')>maxD){G('downInput').value=Math.max(0,maxD);G('downSlider').value=Math.max(0,maxD);}
+  }
+  update();
+}
+function gv(k){return parseFloat(G(FC[k].i).value)||0;}
+function flatPmt(cp,down,rate,term){
+  const loan=cp-down;
+  if(loan<=0)return{base:0,vat:0,total:0,interest:0,loan:0};
+  const ti=loan*(rate/100)*(term/12);
+  const base=(loan+ti)/term;
+  const total=base*VAT;
+  return{base,vat:total-base,total,interest:ti,loan};
+}
+// End-of-period: port = port*(1+r) + contrib
+function calc(down,living,salary,avail,cp,carRate,carTerm,ret,hy){
+  const init=avail-down;
+  const{total:pmt,base:pmtBase,vat:pmtVat,interest,loan}=flatPmt(cp,down,carRate,carTerm);
+  const loanYrs=carTerm/12;
+  const r=ret/100;
+  let port=init,cumInv=init,prev=init;
+  const rows=[];
+  for(let yr=1;yr<=hy;yr++){
+    const inLoan=yr<=loanYrs;
+    const mi=salary-CONDO-living-(inLoan?pmt:0);
+    const gain=port*r;
+    port=port*(1+r)+mi*12;
+    cumInv+=mi*12;
+    rows.push({yr,inLoan,mi,cumInv,gain,port,yoy:port-prev});
+    prev=port;
+  }
+  return{final:port,rows,init,pmt,pmtBase,pmtVat,interest,loan,loanYrs,
+    mb:salary-CONDO-living-pmt,ma:salary-CONDO-living};
+}
+function fmt(n){
+  if(Math.abs(n)>=1e6)return(n<0?'-':'')+(Math.abs(n)/1e6).toFixed(2)+' ล้าน';
+  return Math.round(n).toLocaleString('th-TH')+' บาท';
+}
+let gc,cc;
+const TT={backgroundColor:'#1a1d27',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#e8eaf0',bodyColor:'#8b90a7',callbacks:{label:c=>' '+Math.round(c.raw).toLocaleString('th-TH')+' บาท'}};
+const SY={ticks:{callback:v=>Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K',color:'rgba(255,255,255,0.4)',font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false}};
+const SX=(l='')=>({title:l?{display:true,text:l,color:'rgba(255,255,255,0.3)',font:{size:10}}:{display:false},ticks:{color:'rgba(255,255,255,0.4)',font:{size:11},maxRotation:45,autoSkip:true,maxTicksLimit:12},grid:{display:false},border:{display:false}});
+function buildTable(rows,ly){
+  G('yearBody').innerHTML=rows.map(d=>{
+    const f=d.yr>ly;
+    const mc=d.mi>=0?'td-pos':'td-neg';
+    return`<tr class="${f?'freed':''}"><td>ปีที่ ${d.yr}</td><td class="${f?'td-free':'td-loan'}">${f?'ผ่อนหมดแล้ว':'ผ่อนรถ'}</td><td class="${mc}">${d.mi>=0?'+':''}${Math.round(d.mi).toLocaleString('th-TH')}</td><td>${Math.round(d.cumInv).toLocaleString('th-TH')}</td><td class="td-pos">+${Math.round(d.gain).toLocaleString('th-TH')}</td><td>${Math.round(d.port).toLocaleString('th-TH')}</td><td class="td-pos">+${Math.round(d.yoy).toLocaleString('th-TH')}</td></tr>`;
+  }).join('');
+}
+function update(){
+  const salary=gv('salary'),living=gv('living');
+  const oldCar=gv('oldCar'),debt=gv('debt');
+  const avail=Math.max(0,oldCar-debt);
+  const cp=gv('carPrice');
+  const maxD=Math.min(avail,cp);
+  const down=Math.min(gv('down'),maxD);
+  const carRate=gv('carRate'),carTerm=Math.max(12,Math.round(gv('carTerm')));
+  const ret=gv('return'),hy=Math.max(1,Math.round(gv('horizon')));
+  G('eq-oldcar').textContent=Math.round(oldCar).toLocaleString('th-TH')+' บาท';
+  G('eq-debt').textContent=Math.round(debt).toLocaleString('th-TH')+' บาท';
+  G('eq-avail').textContent=Math.round(avail).toLocaleString('th-TH')+' บาท';
+  G('eq-avail').style.color=avail>0?'var(--green)':'var(--red)';
+  const{final,rows,init,pmt,pmtBase,pmtVat,interest,loan,loanYrs,mb,ma}=calc(down,living,salary,avail,cp,carRate,carTerm,ret,hy);
+  const z=calc(0,living,salary,avail,cp,carRate,carTerm,ret,hy);
+  G('down-pct').textContent=cp>0?`${(down/cp*100).toFixed(1)}% ของราคารถ`:'';
+  const tVat=(pmt-pmt/VAT)*carTerm;
+  G('car-strip').innerHTML=`<span>เงินกู้ <b>${Math.round(loan).toLocaleString('th-TH')}</b></span><span>ดอกเบี้ยรวม <b style="color:var(--red)">${Math.round(interest).toLocaleString('th-TH')}</b></span><span>VAT รวม <b style="color:var(--amber)">${Math.round(tVat).toLocaleString('th-TH')}</b></span><span>จ่ายรวม <b>${Math.round(pmt*carTerm).toLocaleString('th-TH')}</b></span>`;
+  G('fs-oldcar').textContent='+'+Math.round(oldCar).toLocaleString('th-TH');
+  G('fs-debt').textContent='-'+Math.round(debt).toLocaleString('th-TH');
+  G('fs-down').textContent='-'+Math.round(down).toLocaleString('th-TH');
+  G('fs-init').textContent=Math.round(init).toLocaleString('th-TH');
+  G('m-total').textContent=fmt(final);
+  G('m-badge').textContent=hy+' ปี';
+  G('m-initial').textContent=fmt(init);
+  G('m-initial-sub').textContent=`${Math.round(avail).toLocaleString('th-TH')} - ดาวน์ ${Math.round(down).toLocaleString('th-TH')}`;
+  G('m-car').textContent=Math.round(pmt).toLocaleString('th-TH')+' บาท';
+  G('m-car-sub').textContent=`ก่อน VAT ${Math.round(pmtBase).toLocaleString('th-TH')} + VAT ${Math.round(pmtVat).toLocaleString('th-TH')} · ${carTerm} ด.`;
+  G('m-monthly1').textContent=(mb>=0?'+':'')+Math.round(mb).toLocaleString('th-TH')+' บาท';
+  G('m-monthly1').style.color=mb>=0?'var(--text)':'var(--red)';
+  G('m-monthly2').textContent='+'+Math.round(ma).toLocaleString('th-TH')+' บาท';
+  G('m-boost').textContent='+'+Math.round(pmt).toLocaleString('th-TH')+' บาท จากรถหมด';
+  const s=Math.round(salary).toLocaleString('th-TH'),l='-'+Math.round(living).toLocaleString('th-TH');
+  G('f-salary').textContent=s;G('f-salary2').textContent=s;
+  G('f-living').textContent=l;G('f-living2').textContent=l;
+  G('f-car').textContent='-'+Math.round(pmt).toLocaleString('th-TH');
+  G('f-car-freed').textContent='+'+Math.round(pmt).toLocaleString('th-TH');
+  G('f-invest1').textContent=(mb>=0?'+':'')+Math.round(mb).toLocaleString('th-TH');
+  G('f-invest1').style.color=mb>=0?'var(--text)':'var(--red)';
+  G('f-invest2').textContent='+'+Math.round(ma).toLocaleString('th-TH');
+  const ins=G('insight');
+  if(avail<=0){ins.className='insight warn';ins.textContent='ราคาขายรถเก่าน้อยกว่าหนี้เดิม - ไม่มีเงินเหลือลงทุน';}
+  else if(mb<0){ins.className='insight warn';ins.textContent=`กระแสเงินสดติดลบ ${Math.abs(Math.round(mb)).toLocaleString('th-TH')} บาท/เดือน ขณะผ่อนรถ - ลองลดเงินดาวน์หรือขยายระยะผ่อน`;}
+  else{ins.className='insight blue';const d=z.final-final;ins.textContent=down===0?`ดาวน์ 0 คือจุดดีสุด - หลังผ่อนครบ ${carTerm} เดือน ลงทุนเพิ่มได้ ${Math.round(pmt).toLocaleString('th-TH')} บาท/เดือน`:`ดาวน์ ${Math.round(down).toLocaleString('th-TH')} บาท ทำให้พอร์ต ${hy} ปีน้อยกว่าดาวน์ 0 อยู่ ~${Math.round(Math.max(0,d)).toLocaleString('th-TH')} บาท`;}
+  buildTable(rows,loanYrs);
+  const labels=['เริ่มต้น',...rows.map(d=>'ปี '+d.yr)];
+  const vals=[init,...rows.map(d=>Math.round(d.port))];
+  const zVals=[z.init,...z.rows.map(d=>Math.round(d.port))];
+  if(!gc){
+    gc=new Chart(G('growthChart'),{type:'line',data:{labels,datasets:[{data:vals,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.08)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#4f8ef7'},{data:zVals,borderColor:'#34d399',borderDash:[5,4],fill:false,tension:0.4,pointRadius:2,pointBackgroundColor:'#34d399'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT},scales:{y:SY,x:SX()}}});
+  }else{gc.data.labels=labels;gc.data.datasets[0].data=vals;gc.data.datasets[1].data=zVals;gc.update('none');}
+  const pcts=[0,10,20,30,40,50,60,70,80];
+  const dL=pcts.map(p=>Math.min(Math.round(cp*p/100),maxD));
+  const cV=dL.map(d=>Math.round(calc(d,living,salary,avail,cp,carRate,carTerm,ret,hy).final));
+  const sp=cp>0?Math.round(down/cp*100):0;
+  const col=dL.map((_,i)=>pcts[i]===0?'#34d399':Math.abs(pcts[i]-sp)<=5?'#4f8ef7':'#2a3050');
+  if(!cc){
+    cc=new Chart(G('compChart'),{type:'bar',data:{labels:pcts.map(p=>p+'%'),datasets:[{data:cV,backgroundColor:col,borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{title:c=>`ดาวน์ ${pcts[c[0].dataIndex]}% = ${Math.round(cp*pcts[c[0].dataIndex]/100).toLocaleString('th-TH')} บาท`,label:c=>' พอร์ต '+c.raw.toLocaleString('th-TH')+' บาท'}}},scales:{y:SY,x:{...SX('% เงินดาวน์'),ticks:{...SX().ticks,autoSkip:false,maxRotation:0}}}}});
+  }else{cc.data.datasets[0].data=cV;cc.data.datasets[0].backgroundColor=col;cc.update('none');}
+}
+window.addEventListener('load',update);
+</script>
+</body>
+</html>
