@@ -64,12 +64,13 @@
     .car-strip b{color:var(--text);font-weight:600;}
     .formula-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:14px;}
     .formula-box code{color:var(--blue);font-family:monospace;font-size:12px;}
-    .tbl-wrap{overflow-x:auto;}
-    table{width:100%;border-collapse:collapse;font-size:12px;}
-    thead th{font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);text-align:right;padding:8px 10px;border-bottom:1px solid var(--border2);white-space:nowrap;background:var(--bg2);}
+    .tbl-wrap{overflow-x:visible;}
+    table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
+    thead th{font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--text3);text-align:right;padding:6px 5px;border-bottom:1px solid var(--border2);white-space:normal;word-break:break-word;line-height:1.3;background:var(--bg2);}
     thead th:first-child{text-align:left;}
-    tbody td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums;}
+    tbody td{text-align:right;padding:6px 5px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums;}
     tbody td:first-child{text-align:left;font-weight:600;}
+    col.col-yr{width:38px;}col.col-phase{width:58px;}col.col-mi{width:62px;}col.col-cum{width:62px;}col.col-gain{width:62px;}col.col-buy{width:66px;}col.col-yoy{width:60px;}col.col-nc{width:66px;}col.col-diff{width:58px;}
     tbody tr:hover td{background:var(--bg3);}
     tbody tr:last-child td{border-bottom:none;font-weight:700;background:rgba(79,142,247,0.06);color:var(--blue);}
     tbody tr.freed td:first-child::after{content:' checkmark';color:var(--green);font-size:10px;}
@@ -230,7 +231,8 @@
     <div class="card-title">ตารางผลตอบแทนรายปี</div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>ปี</th><th>ช่วง</th><th>ลงทุน/เดือน</th><th>ทุนสะสม</th><th>ผลตอบแทนปีนี้</th><th>ซื้อรถ (พอร์ต)</th><th>+YoY</th><th style="border-left:1px solid rgba(251,191,36,0.2);color:rgba(251,191,36,0.7);">ไม่ซื้อรถ (พอร์ต)</th><th style="color:rgba(251,191,36,0.7);">ส่วนต่าง</th></tr></thead>
+        <colgroup><col class="col-yr"><col class="col-phase"><col class="col-mi"><col class="col-cum"><col class="col-gain"><col class="col-buy"><col class="col-yoy"><col class="col-nc"><col class="col-diff"></colgroup>
+        <thead><tr><th>ปี</th><th>ช่วง</th><th>ลงทุน /ด.</th><th>สะสม</th><th>ผลตอบแทน</th><th>ซื้อรถ</th><th>+YoY</th><th style="border-left:1px solid rgba(251,191,36,0.2);color:rgba(251,191,36,0.7);">ไม่ซื้อรถ</th><th style="color:rgba(251,191,36,0.7);">ต่าง</th></tr></thead>
         <tbody id="yearBody"></tbody>
       </table>
     </div>
@@ -298,6 +300,12 @@ function fmt(n){
   if(Math.abs(n)>=1e6)return(n<0?'-':'')+(Math.abs(n)/1e6).toFixed(2)+' ล้าน';
   return Math.round(n).toLocaleString('th-TH')+' บาท';
 }
+function fmtT(n){// compact for table cells
+  const a=Math.abs(n),s=n<0?'-':'';
+  if(a>=1e6)return s+(a/1e6).toFixed(2)+'M';
+  if(a>=1e3)return s+(a/1e3).toFixed(0)+'K';
+  return Math.round(n).toString();
+}
 let gc,cc;
 const TT={backgroundColor:'#1a1d27',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#e8eaf0',bodyColor:'#8b90a7',callbacks:{label:c=>' '+Math.round(c.raw).toLocaleString('th-TH')+' บาท'}};
 const SY={ticks:{callback:v=>Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K',color:'rgba(255,255,255,0.4)',font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},border:{display:false}};
@@ -309,8 +317,8 @@ function buildTable(rows,ly,ncRows){
     const nc=ncRows[i];
     const diff=nc.port-d.port;
     const diffCls=diff>=0?'td-pos':'td-neg';
-    const diffTxt=(diff>=0?'+':'')+Math.round(diff).toLocaleString('th-TH');
-    return`<tr class="${f?'freed':''}"><td>ปีที่ ${d.yr}</td><td class="${f?'td-free':'td-loan'}">${f?'ผ่อนหมดแล้ว':'ผ่อนรถ'}</td><td class="${mc}">${d.mi>=0?'+':''}${Math.round(d.mi).toLocaleString('th-TH')}</td><td>${Math.round(d.cumInv).toLocaleString('th-TH')}</td><td class="td-pos">+${Math.round(d.gain).toLocaleString('th-TH')}</td><td>${Math.round(d.port).toLocaleString('th-TH')}</td><td class="td-pos">+${Math.round(d.yoy).toLocaleString('th-TH')}</td><td style="border-left:1px solid rgba(251,191,36,0.12);color:#d4aa40;">${Math.round(nc.port).toLocaleString('th-TH')}</td><td class="${diffCls}">${diffTxt}</td></tr>`;
+    const diffTxt=(diff>=0?'+':'')+fmtT(diff);
+    return`<tr class="${f?'freed':''}"><td>ปี ${d.yr}</td><td class="${f?'td-free':'td-loan'}">${f?'หมดแล้ว':'ผ่อนรถ'}</td><td class="${mc}">${d.mi>=0?'+':''}${fmtT(d.mi)}</td><td>${fmtT(d.cumInv)}</td><td class="td-pos">+${fmtT(d.gain)}</td><td>${fmtT(d.port)}</td><td class="td-pos">+${fmtT(d.yoy)}</td><td style="border-left:1px solid rgba(251,191,36,0.12);color:#d4aa40;">${fmtT(nc.port)}</td><td class="${diffCls}">${diffTxt}</td></tr>`;
   }).join('');
 }
 function update(){
