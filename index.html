@@ -152,13 +152,23 @@
     </div>
   </div>
 
-  <div class="big-metric">
-    <div>
-      <div class="big-metric-label">มูลค่าพอร์ตเมื่อครบระยะเวลา</div>
-      <div class="big-metric-value" id="m-total">-</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+    <div class="big-metric" style="margin-bottom:0;">
+      <div>
+        <div class="big-metric-label">ซื้อรถ — พอร์ตสิ้นสุด</div>
+        <div class="big-metric-value" id="m-total">-</div>
+      </div>
+      <div class="badge" id="m-badge">8 ปี</div>
     </div>
-    <div class="badge" id="m-badge">8 ปี</div>
+    <div class="big-metric" style="margin-bottom:0;background:linear-gradient(135deg,#1f1c10 0%,#1b1a0e 100%);border-color:rgba(251,191,36,0.25);">
+      <div>
+        <div class="big-metric-label" style="color:#c4a832;">ไม่ซื้อรถเลย — พอร์ตสิ้นสุด</div>
+        <div class="big-metric-value" style="color:var(--amber)" id="m-nocar">-</div>
+      </div>
+      <div class="badge" style="background:rgba(251,191,36,0.12);color:var(--amber);white-space:nowrap;" id="m-nocar-diff">-</div>
+    </div>
   </div>
+  <div id="nocar-insight" class="insight blue" style="margin-bottom:14px;"></div>
 
   <div class="metrics">
     <div class="metric"><div class="metric-label">เงินต้นเริ่มต้น</div><div class="metric-value" style="color:var(--blue)" id="m-initial">-</div><div class="metric-sub" id="m-initial-sub">-</div></div>
@@ -205,6 +215,7 @@
     <div class="legend">
       <span><span class="ldot" style="background:var(--blue)"></span>ดาวน์ที่เลือก</span>
       <span><span class="ldot" style="background:var(--green)"></span>ดาวน์ 0 บาท (ดีสุด)</span>
+      <span><span class="ldot" style="background:var(--amber)"></span>ไม่ซื้อรถเลย</span>
     </div>
     <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
     <div id="insight" class="insight blue"></div>
@@ -313,6 +324,8 @@ function update(){
   G('eq-avail').style.color=avail>0?'var(--green)':'var(--red)';
   const{final,rows,init,pmt,pmtBase,pmtVat,interest,loan,loanYrs,mb,ma}=calc(down,living,salary,avail,cp,carRate,carTerm,ret,hy);
   const z=calc(0,living,salary,avail,cp,carRate,carTerm,ret,hy);
+  // ไม่ซื้อรถเลย: เงินต้น=avail, ไม่มีค่างวด (carPrice=0)
+  const nc=calc(0,living,salary,avail,0,carRate,carTerm,ret,hy);
   G('down-pct').textContent=cp>0?`${(down/cp*100).toFixed(1)}% ของราคารถ`:'';
   const tVat=(pmt-pmt/VAT)*carTerm;
   G('car-strip').innerHTML=`<span>เงินกู้ <b>${Math.round(loan).toLocaleString('th-TH')}</b></span><span>ดอกเบี้ยรวม <b style="color:var(--red)">${Math.round(interest).toLocaleString('th-TH')}</b></span><span>VAT รวม <b style="color:var(--amber)">${Math.round(tVat).toLocaleString('th-TH')}</b></span><span>จ่ายรวม <b>${Math.round(pmt*carTerm).toLocaleString('th-TH')}</b></span>`;
@@ -342,13 +355,23 @@ function update(){
   if(avail<=0){ins.className='insight warn';ins.textContent='ราคาขายรถเก่าน้อยกว่าหนี้เดิม - ไม่มีเงินเหลือลงทุน';}
   else if(mb<0){ins.className='insight warn';ins.textContent=`กระแสเงินสดติดลบ ${Math.abs(Math.round(mb)).toLocaleString('th-TH')} บาท/เดือน ขณะผ่อนรถ - ลองลดเงินดาวน์หรือขยายระยะผ่อน`;}
   else{ins.className='insight blue';const d=z.final-final;ins.textContent=down===0?`ดาวน์ 0 คือจุดดีสุด - หลังผ่อนครบ ${carTerm} เดือน ลงทุนเพิ่มได้ ${Math.round(pmt).toLocaleString('th-TH')} บาท/เดือน`:`ดาวน์ ${Math.round(down).toLocaleString('th-TH')} บาท ทำให้พอร์ต ${hy} ปีน้อยกว่าดาวน์ 0 อยู่ ~${Math.round(Math.max(0,d)).toLocaleString('th-TH')} บาท`;}
+  // แสดงผลเปรียบเทียบไม่ซื้อรถ
+  G('m-nocar').textContent=fmt(nc.final);
+  const ncDiff=nc.final-final;
+  const ncIns=G('nocar-insight');
+  const ncMonthly=salary-CONDO-living;
+  G('m-nocar-diff').textContent=(ncDiff>=0?'+':'')+fmt(ncDiff);
+  G('m-nocar-diff').style.color=ncDiff>=0?'var(--amber)':'var(--red)';
+  if(avail<=0){ncIns.className='insight warn';ncIns.textContent='ไม่มีเงินต้นสำหรับสถานการณ์ไม่ซื้อรถ';}
+  else{ncIns.className='insight blue';ncIns.style.borderColor='rgba(251,191,36,0.25)';ncIns.style.background='rgba(251,191,36,0.07)';ncIns.style.color='#d4aa40';ncIns.innerHTML=`<strong>ถ้าไม่ซื้อรถ:</strong> เงินต้น <b>${Math.round(avail).toLocaleString('th-TH')} บาท</b> + ลงทุน <b>${Math.round(ncMonthly).toLocaleString('th-TH')} บาท/เดือน</b> ตลอด ${hy} ปี → พอร์ต <b>${fmt(nc.final)}</b> — ${ncDiff>=0?`มากกว่าซื้อรถ <b>${fmt(ncDiff)}</b>`:`น้อยกว่าซื้อรถ <b>${fmt(Math.abs(ncDiff))}</b>`}`;}
   buildTable(rows,loanYrs);
   const labels=['เริ่มต้น',...rows.map(d=>'ปี '+d.yr)];
   const vals=[init,...rows.map(d=>Math.round(d.port))];
   const zVals=[z.init,...z.rows.map(d=>Math.round(d.port))];
+  const ncVals=[nc.init,...nc.rows.map(d=>Math.round(d.port))];
   if(!gc){
-    gc=new Chart(G('growthChart'),{type:'line',data:{labels,datasets:[{data:vals,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.08)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#4f8ef7'},{data:zVals,borderColor:'#34d399',borderDash:[5,4],fill:false,tension:0.4,pointRadius:2,pointBackgroundColor:'#34d399'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT},scales:{y:SY,x:SX()}}});
-  }else{gc.data.labels=labels;gc.data.datasets[0].data=vals;gc.data.datasets[1].data=zVals;gc.update('none');}
+    gc=new Chart(G('growthChart'),{type:'line',data:{labels,datasets:[{data:vals,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.08)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#4f8ef7'},{data:zVals,borderColor:'#34d399',borderDash:[5,4],fill:false,tension:0.4,pointRadius:2,pointBackgroundColor:'#34d399'},{data:ncVals,borderColor:'#fbbf24',borderDash:[3,3],fill:false,tension:0.4,pointRadius:2,pointBackgroundColor:'#fbbf24'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT},scales:{y:SY,x:SX()}}});
+  }else{gc.data.labels=labels;gc.data.datasets[0].data=vals;gc.data.datasets[1].data=zVals;gc.data.datasets[2].data=ncVals;gc.update('none');}
   const pcts=[0,10,20,30,40,50,60,70,80];
   const dL=pcts.map(p=>Math.min(Math.round(cp*p/100),maxD));
   const cV=dL.map(d=>Math.round(calc(d,living,salary,avail,cp,carRate,carTerm,ret,hy).final));
