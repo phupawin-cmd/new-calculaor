@@ -82,7 +82,13 @@
 </head>
 <body>
 <div class="root">
-  <h2>พอร์ตลงทุน &amp; วางแผนรถ</h2>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+    <h2>พอร์ตลงทุน &amp; วางแผนรถ</h2>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+      <span id="save-badge" style="font-size:10px;color:var(--text3);display:none;">บันทึกแล้ว</span>
+      <button onclick="resetState()" style="font-size:11px;font-family:inherit;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;">รีเซ็ต</button>
+    </div>
+  </div>
   <p class="subtitle">วิเคราะห์ผลตอบแทนตามเงินดาวน์และระยะเวลาลงทุน</p>
 
   <div class="formula-box">
@@ -392,8 +398,30 @@ function update(){
   if(!cc){
     cc=new Chart(G('compChart'),{type:'bar',data:{labels:pcts.map(p=>p+'%'),datasets:[{data:cV,backgroundColor:col,borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{title:c=>`ดาวน์ ${pcts[c[0].dataIndex]}% = ${Math.round(cp*pcts[c[0].dataIndex]/100).toLocaleString('th-TH')} บาท`,label:c=>' พอร์ต '+c.raw.toLocaleString('th-TH')+' บาท'}}},scales:{y:SY,x:{...SX('% เงินดาวน์'),ticks:{...SX().ticks,autoSkip:false,maxRotation:0}}}}});
   }else{cc.data.datasets[0].data=cV;cc.data.datasets[0].backgroundColor=col;cc.update('none');}
+  saveState();
 }
-window.addEventListener('load',update);
+const STORE='calc_v1';
+function saveState(){
+  const s={};Object.keys(FC).forEach(k=>s[k]=gv(k));
+  localStorage.setItem(STORE,JSON.stringify(s));
+  const b=G('save-badge');b.style.display='inline';b.textContent='บันทึกแล้ว';
+  clearTimeout(b._t);b._t=setTimeout(()=>b.style.display='none',1200);
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORE);if(!raw)return false;
+    const s=JSON.parse(raw);
+    Object.keys(FC).forEach(k=>{if(s[k]!=null){const f=FC[k];G(f.i).value=s[k];G(f.s).value=Math.min(s[k],f.smax);}});
+    return true;
+  }catch(e){return false;}
+}
+function resetState(){
+  localStorage.removeItem(STORE);
+  const DEFAULTS={salary:60000,living:12500,oldCar:1050000,debt:200000,carPrice:1000000,down:200000,carRate:4,carTerm:60,return:24,horizon:8};
+  Object.keys(FC).forEach(k=>{const f=FC[k],v=DEFAULTS[k]??gv(k);G(f.i).value=v;G(f.s).value=Math.min(v,f.smax);});
+  update();
+}
+window.addEventListener('load',()=>{loadState();update();});
 </script>
 </body>
 </html>
